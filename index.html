@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Railroad Mandate</title>
+<meta name="description" content="A 3D railroad tycoon for Android phones. Lay track across Canada, run trains, build factories, and race three rival railways to own the country.">
+<meta property="og:title" content="Railroad Mandate">
+<meta property="og:description" content="Lay the track. Run the trains. Own the country. A 3D railroad tycoon for Android phones.">
+<meta property="og:image" content="https://railroadmandate.com/img/og.jpg">
+<meta property="og:url" content="https://railroadmandate.com/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#10291f">
+<link rel="icon" href="img/icon.png">
+<link rel="preload" href="fonts/Lora-Variable.woff" as="font" type="font/woff" crossorigin>
+<style>
+@font-face{font-family:Lora;src:url(fonts/Lora-Variable.woff) format("woff");font-weight:400 700;font-display:swap}
+@font-face{font-family:Oswald;src:url(fonts/Oswald.woff) format("woff");font-weight:200 700;font-display:swap}
+:root{
+  --boiler:#10291f;      /* locomotive green, the page */
+  --boiler-2:#173a2c;    /* raised panels */
+  --boiler-3:#21503d;
+  --brass:#d3a64c;
+  --brass-dim:#9a7a38;
+  --signal:#9e2f27;      /* crimson lining */
+  --steam:#efe6d2;       /* text on green */
+  --steam-dim:#b9b39f;
+  --paper:#e8dcc0;       /* the timetable */
+  --ink:#1d1a14;
+  --lake:#2c6b6e;
+  --measure:36rem;
+  --gutter:clamp(16px,4vw,56px);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--boiler);color:var(--steam);font:400 1.125rem/1.65 Lora,Georgia,serif;overflow-x:hidden}
+img{display:block;max-width:100%;height:auto}
+a{color:var(--brass)}
+a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--brass);outline-offset:3px;border-radius:4px}
+h1,h2,h3{font-family:Lora,Georgia,serif;font-weight:600;line-height:1.1;margin:0;text-wrap:balance}
+h2{font-size:clamp(2.1rem,4.6vw,3.6rem);letter-spacing:-.01em}
+h3{font-size:1.45rem}
+p{margin:0 0 1em;max-width:var(--measure)}
+.num{font-family:Oswald,Impact,sans-serif;font-weight:500;letter-spacing:.02em}
+.wrap{width:min(1240px,100% - 2*var(--gutter));margin-inline:auto}
+section{padding-block:clamp(72px,11vw,150px)}
+.lede{font-size:clamp(1.15rem,1.8vw,1.35rem);color:var(--steam)}
+.muted{color:var(--steam-dim)}
+.skip{position:absolute;left:-999px}.skip:focus{left:16px;top:16px;z-index:99;background:var(--brass);color:var(--ink);padding:8px 12px}
+
+/* The lining: brass rule with a crimson pinstripe, as painted on a tender */
+.lining{height:7px;background:linear-gradient(var(--brass) 0 2px,transparent 2px 3px,var(--signal) 3px 4px,transparent 4px 5px,var(--brass) 5px 7px)}
+
+/* ---------- top bar ---------- */
+.bar{position:absolute;inset:0 0 auto;z-index:5;padding:20px var(--gutter);display:flex;align-items:center;justify-content:space-between;gap:16px}
+.bar .mark{display:flex;align-items:center;gap:10px;color:var(--steam);text-decoration:none;font-weight:600;font-size:1.05rem}
+.bar .mark img{width:40px;height:40px}
+.bar nav{display:flex;gap:24px;font-size:.98rem}
+.bar nav a{color:var(--steam);text-decoration:none;opacity:.85}
+.bar nav a:hover{opacity:1;color:var(--brass)}
+@media (max-width:760px){.bar nav{display:none}}
+
+/* ---------- hero ---------- */
+.hero{position:relative;min-height:100svh;display:grid;align-items:center;padding:120px 0 72px;isolation:isolate;overflow:hidden}
+.hero-bg{position:absolute;inset:-40px;z-index:-2;background:url(img/region_west.webp) center/cover;filter:blur(14px) saturate(1.1);transform:scale(1.06)}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;background:
+  radial-gradient(ellipse 70% 60% at 72% 50%,rgba(16,41,31,.25),rgba(16,41,31,.86) 70%),
+  linear-gradient(180deg,rgba(16,41,31,.55),rgba(16,41,31,.2) 40%,var(--boiler) 98%)}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(32px,6vw,90px);align-items:center}
+.hero h1{font-size:clamp(3.4rem,9.6vw,8.6rem);font-weight:700;line-height:.92;letter-spacing:-.025em;margin:22px 0 26px;color:#f6eedb;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.hero h1 span{display:block;font-family:Oswald,sans-serif;font-weight:400;letter-spacing:.04em;color:var(--brass);font-size:.62em;letter-spacing:-.01em;margin-top:.12em}
+.hero .tag{font-size:clamp(1.25rem,2.1vw,1.7rem);line-height:1.35;font-weight:500;margin:0 0 18px;max-width:none}
+.hero .crest{width:96px;height:96px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.45))}
+.actions{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;margin-top:30px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 26px;border-radius:999px;background:var(--brass);color:var(--ink);font:600 1.02rem Lora,serif;text-decoration:none;box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),0 8px 22px rgba(0,0,0,.3)}
+.btn:hover{background:#e2b75c}
+.btn.ghost{background:none;color:var(--steam);box-shadow:inset 0 0 0 2px var(--brass-dim)}
+.btn.ghost:hover{background:rgba(211,166,76,.12)}
+.link{color:var(--steam);font-weight:500;text-underline-offset:4px}
+.link:hover{color:var(--brass)}
+.status{margin-top:18px}
+.status{display:inline-flex;align-items:center;gap:10px;color:var(--steam-dim);font-size:.98rem}
+.lamp{width:10px;height:10px;border-radius:50%;background:#e2b75c;box-shadow:0 0 0 4px rgba(226,183,92,.18),0 0 14px #e2b75c}
+
+/* phone */
+.phone{position:relative;width:min(340px,78vw);margin-inline:auto;border-radius:44px;padding:12px;background:linear-gradient(145deg,#2b2b28,#0d0d0c 60%,#2a2925);box-shadow:0 0 0 2px #3c3a33,0 40px 80px rgba(0,0,0,.55),0 0 0 9px rgba(211,166,76,.08)}
+.phone .screen{position:relative;width:100%;aspect-ratio:9/16;border-radius:33px;overflow:hidden;background:#0e2119}
+.phone .screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;opacity:0;transition:opacity .7s ease}
+.phone .screen img.on{opacity:1}
+
+.shots-nav{display:flex;justify-content:center;gap:6px;margin-top:20px;flex-wrap:wrap}
+.shots-nav button{font:500 .85rem Oswald,sans-serif;letter-spacing:.04em;color:var(--steam-dim);background:none;border:1px solid rgba(239,230,210,.18);border-radius:999px;padding:6px 12px;cursor:pointer}
+.shots-nav button[aria-pressed=true]{color:var(--ink);background:var(--brass);border-color:var(--brass)}
+@media (max-width:900px){
+  .hero .wrap{grid-template-columns:1fr}
+  .hero{padding-top:100px}
+  .hero .crest{width:72px;height:72px}
+}
+
+/* ---------- vista ---------- */
+.vista{padding:0;position:relative}
+.vista figure{margin:0;position:relative}
+.vista{background:#122e24}
+.vista img{width:100%;max-height:88vh;object-fit:contain}
+.vista figcaption{position:absolute;left:var(--gutter);bottom:clamp(20px,4vw,48px);max-width:30rem;background:rgba(16,41,31,.88);backdrop-filter:blur(6px);padding:20px 24px;border-left:3px solid var(--brass);font-size:1.02rem}
+.vista figcaption strong{display:block;font-size:1.3rem;margin-bottom:4px}
+@media (max-width:640px){.vista figcaption{position:static;max-width:none;border-left:0;border-top:3px solid var(--brass)}}
+
+/* ---------- race ---------- */
+.race-head{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,5vw,80px);align-items:end;margin-bottom:56px}
+.race-head p{margin:0}
+@media (max-width:800px){.race-head{grid-template-columns:1fr}}
+.rr{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:rgba(211,166,76,.25);border:2px solid rgba(211,166,76,.25)}
+.rr article{background:var(--boiler);display:flex;flex-direction:column}
+.rr .pic{position:relative;aspect-ratio:16/11;overflow:hidden}
+.rr .pic img{width:100%;height:100%;object-fit:cover}
+.rr .pic .c{position:absolute;right:10px;bottom:-26px;width:74px;height:74px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.5))}
+.rr .body{padding:26px 22px 28px}
+.rr .region{font-family:Oswald,sans-serif;font-size:.95rem;letter-spacing:.06em;color:var(--brass)}
+.rr h3{margin:4px 0 14px;font-size:1.32rem}
+.rr .who{font-size:1rem;margin:0 0 4px}
+.rr .who b{font-weight:600}
+.rr .line{font-size:.98rem;color:var(--steam-dim);margin:0}
+@media (max-width:1000px){.rr{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.rr{grid-template-columns:1fr}}
+.win{margin-top:48px;display:flex;flex-wrap:wrap;gap:20px 56px;align-items:baseline}
+.win .big{font-family:Oswald,sans-serif;font-size:clamp(4rem,10vw,7rem);line-height:.9;color:var(--brass)}
+.win p{margin:0;max-width:30rem}
+
+/* ---------- route (how it plays) ---------- */
+.route{background:var(--paper);color:var(--ink)}
+.route h2{color:var(--ink)}
+.route .grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:clamp(32px,6vw,96px);align-items:start}
+.route .intro{margin:18px 0 48px;color:#3c372c}
+.stops{list-style:none;margin:0;padding:0;position:relative}
+.stops::before{content:"";position:absolute;left:23px;top:12px;bottom:12px;width:8px;background:
+  repeating-linear-gradient(180deg,#5a4a33 0 3px,transparent 3px 12px),linear-gradient(90deg,transparent 0 1px,#3b3328 1px 2px,transparent 2px 6px,#3b3328 6px 7px,transparent 7px)}
+.stops li{position:relative;padding:0 0 38px 78px;min-height:64px}
+.stops li:last-child{padding-bottom:0}
+.stops .dot{position:absolute;left:8px;top:2px;width:38px;height:38px;border-radius:50%;background:var(--paper);border:4px solid var(--ink);display:grid;place-items:center;font:600 1rem Oswald,sans-serif;color:var(--ink);transition:background .3s,border-color .3s,color .3s}
+.stops li.here .dot{background:var(--signal);border-color:var(--signal);color:#fff}
+.stops h3{font-size:1.35rem;margin:4px 0 6px;color:var(--ink)}
+.stops p{margin:0;color:#3c372c;font-size:1.04rem}
+.stops .reward{font-family:Oswald,sans-serif;font-size:.92rem;color:var(--signal);letter-spacing:.03em}
+.route .sticky{position:sticky;top:6vh}
+.route .phone{width:100%;max-width:340px}
+.route .phone-cap{text-align:center;margin-top:16px;font-size:.98rem;color:#3c372c}
+@media (max-width:900px){.route .grid{grid-template-columns:1fr}.route .sticky{display:none}}
+
+/* ---------- era dial (signature) ---------- */
+.eras{position:relative;overflow:hidden;isolation:isolate}
+.eras .wash{position:absolute;inset:0;z-index:-1;background-size:cover;background-position:center;filter:blur(30px) brightness(.35) saturate(1.2);transform:scale(1.15);transition:background-image .6s}
+.eras-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:24px 48px}
+.year{font-family:Oswald,sans-serif;font-weight:600;font-size:clamp(5.5rem,17vw,13rem);line-height:.8;color:var(--brass);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.era-name{font-size:clamp(1.5rem,2.6vw,2.1rem);font-weight:600;margin:14px 0 8px}
+.dial{margin:48px 0 40px}
+.dial-track{position:relative;height:56px}
+.dial input{position:absolute;inset:0;width:100%;height:56px;margin:0;opacity:0;cursor:pointer;z-index:2}
+.dial .rails{position:absolute;left:0;right:0;top:22px;height:12px;background:
+  repeating-linear-gradient(90deg,#5c4a30 0 6px,transparent 6px 22px);border-top:3px solid #c9c3b2;border-bottom:3px solid #c9c3b2}
+.dial .loco{position:absolute;top:6px;width:44px;height:44px;margin-left:-22px;border-radius:50%;background:var(--brass);border:3px solid var(--boiler);box-shadow:0 0 0 2px var(--brass),0 8px 18px rgba(0,0,0,.5);transition:left .35s cubic-bezier(.3,.7,.3,1);display:grid;place-items:center}
+.dial .loco svg{width:24px;height:24px}
+.dial input:focus-visible + .rails + .loco{outline:3px solid var(--steam);outline-offset:4px}
+.dial .marks{display:flex;justify-content:space-between;margin-top:10px}
+.dial .marks button{background:none;border:0;color:var(--steam-dim);font:500 1.05rem Oswald,sans-serif;cursor:pointer;padding:6px 2px}
+.dial .marks button[aria-current=true]{color:var(--brass)}
+.era-panels{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.era-panels figure{margin:0;position:relative;overflow:hidden;background:#0b1d16;border:1px solid rgba(211,166,76,.3);aspect-ratio:16/10}
+.era-panels figure img{width:100%;height:100%;object-fit:cover;transition:opacity .35s}
+.era-panels figcaption{position:absolute;left:0;right:0;bottom:0;padding:32px 18px 14px;background:linear-gradient(transparent,rgba(8,20,15,.92));font-size:.98rem}
+.era-panels figcaption b{display:block;font-size:1.12rem;font-weight:600}
+@media (max-width:620px){.era-panels{grid-template-columns:1fr}}
+.fade{opacity:0}
+
+/* ---------- roster ---------- */
+.roster-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:20px;margin-bottom:36px}
+.roster-head p{margin:0}
+.scroller{display:grid;grid-auto-flow:column;grid-auto-columns:clamp(260px,26vw,320px);gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px var(--gutter) 22px;scrollbar-color:var(--brass-dim) transparent}
+.card{scroll-snap-align:start;background:var(--paper);color:var(--ink);border-radius:10px;padding:10px;box-shadow:0 0 0 2px var(--brass-dim),0 14px 28px rgba(0,0,0,.35);display:flex;flex-direction:column}
+.card .art{aspect-ratio:3/2;border-radius:6px;overflow:hidden;background:#cdbf9f}
+.card .art img{width:100%;height:100%;object-fit:cover}
+.card .meta{padding:12px 6px 4px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card h3{font-size:1.18rem}
+.card .yr{font-family:Oswald,sans-serif;font-size:1.25rem;color:var(--signal)}
+.card dl{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:8px 6px 6px;padding-top:10px;border-top:1px solid #b9a982}
+.card dt{font-size:.78rem;color:#6a5f49}
+.card dd{margin:0;font-family:Oswald,sans-serif;font-size:1.05rem}
+.scroll-btns{display:flex;gap:10px}
+.scroll-btns button{width:48px;height:48px;border-radius:50%;border:2px solid var(--brass-dim);background:none;color:var(--brass);font-size:1.3rem;cursor:pointer}
+.scroll-btns button:hover{background:var(--boiler-2)}
+
+/* ---------- war ---------- */
+.war .grid{display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(32px,6vw,90px);align-items:center}
+.war .pic{position:relative}
+.war .pic img{width:100%;border:2px solid rgba(211,166,76,.35)}
+.units{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.units figure{margin:0;text-align:center;width:84px}
+.units img{width:72px;height:72px;margin:0 auto 6px;border-radius:50%}
+.units figcaption{font-size:.82rem;color:var(--steam-dim);line-height:1.25}
+@media (max-width:860px){.war .grid{grid-template-columns:1fr}}
+
+/* ---------- gallery ---------- */
+.gallery{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.gallery figure{margin:0;position:relative;overflow:hidden;background:#0b1d16}
+.gallery img{width:100%;height:100%;object-fit:cover}
+.gallery figcaption{position:absolute;left:12px;bottom:12px;background:rgba(16,41,31,.88);padding:6px 12px;font-size:.92rem;border-radius:4px}
+.gallery .g1{grid-column:span 4;aspect-ratio:16/9}
+.gallery .g2{grid-column:span 2}
+.gallery .g3,.gallery .g4,.gallery .g5{grid-column:span 2;aspect-ratio:4/3}
+@media (max-width:760px){.gallery{grid-template-columns:1fr}.gallery figure{grid-column:auto!important;aspect-ratio:16/10!important}}
+
+/* ---------- footer ---------- */
+.depart{background:var(--boiler-2);text-align:center}
+.depart h2{font-size:clamp(2.4rem,6vw,4.6rem)}
+.depart p{margin-inline:auto}
+.manifest{display:grid;grid-template-columns:repeat(5,1fr);margin:56px auto 0;max-width:980px;border-top:1px solid rgba(211,166,76,.35);border-bottom:1px solid rgba(211,166,76,.35)}
+.manifest div{padding:22px 10px}
+.manifest div+div{border-left:1px solid rgba(211,166,76,.2)}
+.manifest .num{display:block;font-size:2.4rem;color:var(--brass);line-height:1.1}
+.manifest span:last-child{font-size:.95rem;color:var(--steam-dim)}
+@media (max-width:700px){.manifest{grid-template-columns:repeat(2,1fr)}.manifest div{border-left:0!important;border-top:1px solid rgba(211,166,76,.15)}}
+footer{padding:36px var(--gutter);display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:.92rem;color:var(--steam-dim);background:#0c2018}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="bar">
+  <a class="mark" href="#top"><img src="img/crest_player.webp" alt="" width="40" height="40">Railroad Mandate</a>
+  <nav aria-label="Sections">
+    <a href="#race">The race</a>
+    <a href="#play">How it plays</a>
+    <a href="#eras">The eras</a>
+    <a href="#roster">Engines</a>
+    <a href="download/">Download</a>
+    <a href="play/">Play</a>
+  </nav>
+</header>
+
+<main id="main">
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="wrap">
+    <div>
+      <img class="crest" src="img/crest_player.webp" alt="Railroad Mandate crest: a winged driving wheel" width="96" height="96">
+      <h1>Railroad Mandate <span>Canada, 1880</span></h1>
+      <p class="tag">Lay the track. Run the trains. Own the country.</p>
+      <p class="lede">A 3D railroad tycoon for your phone. Start with one line and one train, then build the mines, mills and stations that grow a nation, and race three rival railways for every mile of it.</p>
+      <div class="actions">
+        <a class="btn" href="download/">Download for Windows</a>
+        <a class="btn ghost" href="play/">Play in your browser</a>
+      </div>
+      <p class="status"><span class="lamp" aria-hidden="true"></span>Free early build for Windows and the browser. Coming to Android.</p>
+    </div>
+    <div>
+      <div class="phone" id="heroPhone">
+        <div class="screen">
+          <img class="on" src="img/ph_toronto.webp" alt="Toronto in the game, with the company bar at the top and the next goal" width="720" height="1280">
+          <img src="img/ph_floor.webp" alt="Inside a sawmill: the open factory floor in 3D" width="720" height="1280" loading="lazy">
+          <img src="img/ph_race.webp" alt="The race for Canada: your share of the railways against three rivals" width="720" height="1280" loading="lazy">
+          <img src="img/ph_research.webp" alt="Research: locomotive engineering, with a painted card for each step" width="720" height="1280" loading="lazy">
+        </div>
+      </div>
+      <div class="shots-nav" role="group" aria-label="Game screens">
+        <button aria-pressed="true">Your town</button>
+        <button aria-pressed="false">Factory floor</button>
+        <button aria-pressed="false">The race</button>
+        <button aria-pressed="false">Research</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="lining" aria-hidden="true"></div>
+
+<!-- VISTA -->
+<section class="vista" aria-label="The map">
+  <figure>
+    <img src="img/map_race.webp" alt="Map of Canada split into four territories: the Pacific Coast Railway around Vancouver, the Prairie Northern around Winnipeg, the Upper Canada Railway around Toronto and the St. Lawrence & Atlantic around Montreal, each with its first lines drawn" width="2501" height="960" loading="lazy">
+    <figcaption><strong>Canada, 1880</strong>Four railways, four home territories, seventy-two towns from Victoria to St. John's. Every line you lay is a step toward owning the lot.</figcaption>
+  </figure>
+</section>
+
+<!-- RACE -->
+<section id="race">
+  <div class="wrap">
+    <div class="race-head">
+      <h2>Four railways. One country.</h2>
+      <p class="lede">Pick your corner of Canada. The other three belong to rival tycoons, each with their own way of doing business, and none of them will wait for you.</p>
+    </div>
+    <div class="rr">
+      <article>
+        <div class="pic"><img src="img/region_west.webp" alt="Painting of a steam train on a mountain ledge above a Pacific harbour" loading="lazy" width="640" height="400"><img class="c" src="img/crest_pacific_coast.webp" alt="" loading="lazy" width="74" height="74"></div>
+        <div class="body"><div class="region">The West</div><h3>Pacific Coast Railway</h3><p class="who"><b>Captain Silas Vane</b>, empire builder</p><p class="line">Lays track fast and far, and borrows to do it.</p></div>
+      </article>
+      <article>
+        <div class="pic"><img src="img/region_prairies.webp" alt="Painting of a freight train passing grain elevators in a wheat field" loading="lazy" width="640" height="400"><img class="c" src="img/crest_prairie_northern.webp" alt="" loading="lazy" width="74" height="74"></div>
+        <div class="body"><div class="region">The Prairies</div><h3>Prairie Northern Railway</h3><p class="who"><b>Margaret Holloway</b>, stock raider</p><p class="line">Buys shares in rival railways and hunts for takeovers.</p></div>
+      </article>
+      <article>
+        <div class="pic"><img src="img/region_central.webp" alt="Painting of ore cars at a lake port with a steamer loading" loading="lazy" width="640" height="400"><img class="c" src="img/crest_upper_canada.webp" alt="" loading="lazy" width="74" height="74"></div>
+        <div class="body"><div class="region">Central Canada</div><h3>Upper Canada Railway</h3><p class="who"><b>Edmund Thorne</b>, careful banker</p><p class="line">Builds only where it pays, and keeps money in the bank.</p></div>
+      </article>
+      <article>
+        <div class="pic"><img src="img/region_east.webp" alt="Painting of a harbour below a château, with sailing ships and a train on the quay" loading="lazy" width="640" height="400"><img class="c" src="img/crest_st_lawrence_atlantic.webp" alt="" loading="lazy" width="74" height="74"></div>
+        <div class="body"><div class="region">The East</div><h3>St. Lawrence &amp; Atlantic</h3><p class="who"><b>Jean-Baptiste Morel</b>, harbour man</p><p class="line">Ties his railway to the ports and the sea trade.</p></div>
+      </article>
+    </div>
+    <div class="win">
+      <div class="big num">75%</div>
+      <p class="lede">Own three-quarters of Canada's railways to win. Or skip the long way round: buy up a rival's shares until his board hands you the company.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT PLAYS -->
+<section class="route" id="play">
+  <div class="wrap grid">
+    <div>
+      <h2>Your first run, stop by stop</h2>
+      <p class="intro lede">You never have to guess what to do next. A NEXT button at the top of the screen shows the next stop on the line, with a cash reward when you reach it.</p>
+      <ol class="stops" id="stops">
+        <li data-shot="img/ph_follow.webp" data-cap="Riding along on the line to Vancouver"><span class="dot">1</span><h3>Ride your first train</h3><p>You start with one line and one engine. Follow it out of town, or climb into the cab.</p><span class="reward">+$1,000</span></li>
+        <li data-shot="img/ph_jobs.webp" data-cap="The job board: who wants what, and what they pay"><span class="dot">2</span><h3>Deliver a job</h3><p>Towns post jobs: forty tonnes of grain here, flour there. Deliver on time and your record goes up.</p><span class="reward">+$3,000</span></li>
+        <li data-shot="img/ph_toronto.webp" data-cap="Grain farms and logging camps near Toronto"><span class="dot">3</span><h3>Open a mine or a farm</h3><p>Coal, iron, timber and grain sit outside every town. Build the works and your trains carry what they dig and grow.</p><span class="reward">+$5,000</span></li>
+        <li data-shot="img/ph_floor.webp" data-cap="The open factory floor, in 3D"><span class="dot">4</span><h3>Build a factory, then go inside</h3><p>Enlarge the building from the outside, then fit machines on the open floor. Each level you buy shows up as new machinery.</p><span class="reward">+$5,000</span></li>
+        <li data-shot="img/ph_research.webp" data-cap="Research, with a painted card for every step"><span class="dot">5</span><h3>Research better engines</h3><p>Thirteen fields, from locomotive engineering to shipping and ports. Steam gives way to diesel, electric and high speed.</p><span class="reward">+$6,000</span></li>
+        <li data-shot="img/ph_jobs.webp" data-cap="Government jobs show the bid that wins"><span class="dot">6</span><h3>Win a government contract</h3><p>Governments need coal, steel and munitions moved. Bid low enough to win, and deliver what you promised.</p><span class="reward">+$8,000</span></li>
+        <li data-shot="img/ph_race.webp" data-cap="The race for Canada, rival by rival"><span class="dot">7</span><h3>Go public, then take over a rival</h3><p>List your company, buy your rivals' shares, and when you hold enough, their railway becomes yours.</p><span class="reward">+$25,000</span></li>
+      </ol>
+    </div>
+    <div class="sticky">
+      <div class="phone"><div class="screen"><img class="on" id="routeShot" src="img/ph_follow.webp" alt="" width="720" height="1280" loading="lazy"></div></div>
+      <p class="phone-cap" id="routeCap" aria-live="polite">Riding along on the line to Vancouver</p>
+    </div>
+  </div>
+</section>
+
+<!-- ERAS (signature) -->
+<section class="eras" id="eras" aria-labelledby="erasTitle">
+  <div class="wash" id="eraWash" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="eras-top">
+      <div>
+        <h2 id="erasTitle">Run it for 170 years</h2>
+        <p class="lede" style="margin-top:14px">The same company, from wooden coaches to bullet trains. Drag the engine along the line to see your works change with the age.</p>
+      </div>
+      <div style="text-align:right">
+        <div class="year" id="eraYear" aria-live="polite">1900</div>
+        <div class="era-name" id="eraName">The age of steam</div>
+      </div>
+    </div>
+
+    <div class="dial">
+      <div class="dial-track">
+        <input type="range" id="eraRange" min="0" max="3" step="1" value="1" aria-label="Era" aria-valuetext="1900">
+        <div class="rails" aria-hidden="true"></div>
+        <div class="loco" id="eraLoco" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#10291f"><path d="M4 15V8h3V5h4v3h5l3 4v3h1v2h-2a2 2 0 0 1-4 0H9a2 2 0 0 1-4 0H3v-2h1zm2-5v3h3v-3H6zm7 0v3h4l-2-3h-2z"/></svg></div>
+      </div>
+      <div class="marks" id="eraMarks">
+        <button data-i="0">1830</button><button data-i="1" aria-current="true">1900</button><button data-i="2">1960</button><button data-i="3">2000</button>
+      </div>
+    </div>
+
+    <div class="era-panels">
+      <figure class="a"><img id="eraLocoImg" src="img/card_steam_1912_grandexpress.webp" alt="" width="640" height="427"><figcaption id="eraLocoCap"><b>Grand Express</b>4-6-2 steam, 130 km/h</figcaption></figure>
+      <figure class="b"><img id="eraFactory" src="img/factory_heavy_1900.webp" alt="" width="640" height="400"><figcaption><b>Your steel works</b>From the outside</figcaption></figure>
+      <figure class="c"><img id="eraInterior" src="img/interior_heavy_1900.webp" alt="" width="640" height="400"><figcaption><b>The factory floor</b>The machines you fitted</figcaption></figure>
+      <figure class="d"><img id="eraResearch" src="img/research_steam_1900.webp" alt="" width="640" height="400"><figcaption id="eraResCap"><b>Research</b>Superheated steam and heavier engines</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<div class="lining" aria-hidden="true"></div>
+
+<!-- ROSTER -->
+<section id="roster" style="padding-bottom:clamp(56px,8vw,110px)">
+  <div class="wrap roster-head">
+    <div>
+      <h2>Sixty-eight engines to collect</h2>
+      <p class="lede" style="margin-top:14px">Every locomotive is a full 3D model with its own painted card, from 1829 to today. Here are a few.</p>
+    </div>
+    <div class="scroll-btns"><button id="rl" aria-label="Scroll engines left">‹</button><button id="rr" aria-label="Scroll engines right">›</button></div>
+  </div>
+  <div class="scroller" id="scroller" tabindex="0" aria-label="Locomotives"></div>
+</section>
+
+<!-- WAR -->
+<section class="war" style="padding-top:0">
+  <div class="wrap grid">
+    <div class="pic"><img src="img/war_front_1900.webp" alt="Painting of soldiers unloading supplies from a train at a railhead" width="768" height="480" loading="lazy"></div>
+    <div>
+      <h2>When the country goes to war, it calls you</h2>
+      <p class="lede" style="margin-top:18px">You don't fight the wars. The governments do. But armies run on railways, and someone has to haul the shells, the coal and the troops to the front.</p>
+      <p class="muted">War brings rich government contracts and cut lines that need repair. Peace brings the boom.</p>
+      <div class="units">
+        <figure><img src="img/unit_infantry.webp" alt="" loading="lazy" width="72" height="72"><figcaption>Infantry</figcaption></figure>
+        <figure><img src="img/unit_artillery.webp" alt="" loading="lazy" width="72" height="72"><figcaption>Artillery</figcaption></figure>
+        <figure><img src="img/unit_supply_wagon.webp" alt="" loading="lazy" width="72" height="72"><figcaption>Supply</figcaption></figure>
+        <figure><img src="img/unit_armoured_train.webp" alt="" loading="lazy" width="72" height="72"><figcaption>Armoured train</figcaption></figure>
+        <figure><img src="img/unit_tank.webp" alt="" loading="lazy" width="72" height="72"><figcaption>Tanks</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section style="padding-top:0">
+  <div class="wrap">
+    <h2 style="margin-bottom:36px">Straight from the game</h2>
+    <div class="gallery">
+      <figure class="g1"><img src="img/3d_toronto.webp" alt="Toronto with a three-platform station, an engine shed and a train arriving" loading="lazy" width="1600" height="900"><figcaption>Toronto, with a big station and an engine shed</figcaption></figure>
+      <figure class="g2"><img src="img/3d_train.webp" alt="A steam freight train crossing farmland by the lake" loading="lazy" width="1600" height="900"><figcaption>Grain to St. Catharines</figcaption></figure>
+      <figure class="g3"><img src="img/3d_cab.webp" alt="The view from the cab: the line curving across the prairie" loading="lazy" width="1600" height="900"><figcaption>The view from the cab</figcaption></figure>
+      <figure class="g4"><img src="img/3d_signal.webp" alt="A semaphore signal beside a raised line" loading="lazy" width="1600" height="900"><figcaption>Signals keep trains apart</figcaption></figure>
+      <figure class="g5"><img src="img/3d_tunnel.webp" alt="Lake Ontario and the farmland around Toronto from high above" loading="lazy" width="1600" height="900"><figcaption>Lake Ontario from above</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- DEPART -->
+<section class="depart">
+  <div class="wrap">
+    <h2>All aboard</h2>
+    <p class="lede" style="margin-top:18px">Download the early build for your Windows PC, or play it straight in your browser. It's still being built, so expect changes. The Android version is on the way.</p>
+    <div class="actions" style="justify-content:center"><a class="btn" href="download/">Download for Windows</a><a class="btn ghost" href="play/">Play in your browser</a></div>
+    <div class="manifest">
+      <div><span class="num">68</span><span>locomotives</span></div>
+      <div><span class="num">124</span><span>kinds of cargo</span></div>
+      <div><span class="num">232</span><span>industries</span></div>
+      <div><span class="num">72</span><span>Canadian towns</span></div>
+      <div><span class="num">13</span><span>research fields</span></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <span>© 2026 Railroad Mandate</span>
+  <span>Every engine, town and tycoon in the game is original.</span>
+</footer>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* hero phone */
+  const shots = [...document.querySelectorAll('#heroPhone img')];
+  const tabs = [...document.querySelectorAll('.shots-nav button')];
+  let cur = 0, timer;
+  const show = i => {
+    cur = i;
+    shots.forEach((s, k) => s.classList.toggle('on', k === i));
+    tabs.forEach((t, k) => t.setAttribute('aria-pressed', k === i));
+  };
+  const auto = () => { clearInterval(timer); if (!reduce) timer = setInterval(() => show((cur + 1) % shots.length), 4200); };
+  tabs.forEach((t, i) => t.addEventListener('click', () => { show(i); clearInterval(timer); }));
+  auto();
+
+  /* route: the phone follows the stop you're reading */
+  const stops = [...document.querySelectorAll('#stops li')];
+  const rShot = document.getElementById('routeShot'), rCap = document.getElementById('routeCap');
+  const setStop = li => {
+    stops.forEach(s => s.classList.toggle('here', s === li));
+    if (rShot.getAttribute('src') !== li.dataset.shot) {
+      rShot.style.opacity = 0;
+      setTimeout(() => { rShot.src = li.dataset.shot; rShot.style.opacity = 1; }, reduce ? 0 : 220);
+    }
+    rCap.textContent = li.dataset.cap;
+  };
+  const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && setStop(e.target)), { rootMargin: '-45% 0px -45% 0px' });
+  stops.forEach(s => io.observe(s));
+  setStop(stops[0]);
+
+  /* era dial */
+  const ERAS = [
+    { y: 1830, name: 'The first railways', loco: ['steam_1835_eagle', 'Eagle', '2-2-2 steam, 65 km/h'], res: ['steam', 'Better boilers and the first real engines'] },
+    { y: 1900, name: 'The age of steam', loco: ['steam_1912_grandexpress', 'Grand Express', '4-6-2 steam, 130 km/h'], res: ['steam', 'Superheated steam and heavier engines'] },
+    { y: 1960, name: 'Diesel and electric', loco: ['na_diesel_1969_centennial', 'Centennial', 'Diesel freight, 4,900 kW'], res: ['power', 'Diesels and overhead power'] },
+    { y: 2000, name: 'High speed', loco: ['na_hst_2000_aurora_end', 'Aurora', 'Electric high speed, 240 km/h'], res: ['signals', 'Computer signalling and high-speed lines'] },
+  ];
+  const $ = id => document.getElementById(id);
+  const range = $('eraRange'), marks = [...document.querySelectorAll('#eraMarks button')];
+  const swap = (img, src) => {
+    if (img.getAttribute('src') === src) return;
+    const pre = new Image(); pre.src = src;
+    img.style.opacity = 0;
+    pre.onload = () => { img.src = src; img.style.opacity = 1; };
+  };
+  let yearAnim;
+  const setEra = i => {
+    const e = ERAS[i];
+    range.value = i; range.setAttribute('aria-valuetext', e.y + ', ' + e.name);
+    $('eraLoco').style.left = (i / 3 * 100) + '%';
+    marks.forEach((m, k) => m.toggleAttribute('aria-current', k === i) || m.removeAttribute('aria-current'));
+    marks[i].setAttribute('aria-current', 'true');
+    $('eraName').textContent = e.name;
+    // the year rolls like a counter
+    const from = parseInt($('eraYear').textContent, 10), to = e.y, t0 = performance.now();
+    cancelAnimationFrame(yearAnim);
+    const tick = t => {
+      const p = reduce ? 1 : Math.min(1, (t - t0) / 600);
+      $('eraYear').textContent = Math.round(from + (to - from) * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) yearAnim = requestAnimationFrame(tick);
+    };
+    yearAnim = requestAnimationFrame(tick);
+    swap($('eraLocoImg'), `img/card_${e.loco[0]}.webp`);
+    $('eraLocoCap').innerHTML = `<b>${e.loco[1]}</b>${e.loco[2]}`;
+    swap($('eraFactory'), `img/factory_heavy_${e.y}.webp`);
+    swap($('eraInterior'), `img/interior_heavy_${e.y}.webp`);
+    swap($('eraResearch'), `img/research_${e.res[0]}_${e.y}.webp`);
+    $('eraResCap').innerHTML = `<b>Research</b>${e.res[1]}`;
+    $('eraWash').style.backgroundImage = `url(img/factory_heavy_${e.y}.webp)`;
+  };
+  range.addEventListener('input', () => setEra(+range.value));
+  marks.forEach(m => m.addEventListener('click', () => setEra(+m.dataset.i)));
+  setEra(1);
+
+  /* roster */
+  const ENGINES = [
+    ['steam_1829_pioneer','Pioneer',1829,46,15,'Steam'],
+    ['steam_1835_eagle','Eagle',1835,65,30,'Steam'],
+    ['na_steam_1855_american','Prairie Pioneer',1855,80,300,'Steam'],
+    ['steam_1865_workhorse','Workhorse',1865,60,420,'Steam'],
+    ['steam_1885_continental','Continental',1885,110,650,'Steam'],
+    ['na_steam_1895_consolidation','Heavy Hauler',1895,80,900,'Steam'],
+    ['steam_1912_grandexpress','Grand Express',1912,130,1300,'Steam'],
+    ['elec_1920_crocodile','Alpine Crocodile',1920,65,2700,'Electric'],
+    ['dmu_1935_flyer_a','Flying Express',1935,160,300,'Diesel'],
+    ['na_steam_1937_royalhudson','Crown Hudson',1937,160,2900,'Steam'],
+    ['na_steam_1941_bigboy','Titan 4-8-8-4',1941,130,4800,'Steam'],
+    ['na_diesel_1946_streamliner_pa','Silver Comet PA',1946,160,1900,'Diesel'],
+    ['na_diesel_1955_canadian_fp7','Transcontinental FP7',1955,140,1120,'Diesel'],
+    ['elec_1965_rheingold','Rheingold Electric',1965,200,7440,'Electric'],
+    ['na_diesel_1969_centennial','Centennial',1969,115,4900,'Diesel'],
+    ['hst_1981_grandvitesse','Grand Vitesse',1981,270,3200,'Electric'],
+    ['na_diesel_1994_ac_freighter','AC Freighter',1994,120,3280,'Diesel'],
+    ['na_hst_2000_aurora_end','Aurora',2000,240,3100,'Electric'],
+    ['hst_2008_velocity_end','Velocity',2008,320,2000,'Electric'],
+  ];
+  const sc = $('scroller');
+  sc.innerHTML = ENGINES.map(([id, n, y, kmh, kw, t]) => `
+    <article class="card">
+      <div class="art"><img src="img/card_${id}.webp" alt="${n}, ${y}" loading="lazy" width="640" height="427"></div>
+      <div class="meta"><h3>${n}</h3><span class="yr">${y}</span></div>
+      <dl><div><dt>Power</dt><dd>${t}</dd></div><div><dt>Top speed</dt><dd>${kmh} km/h</dd></div><div><dt>Output</dt><dd>${kw.toLocaleString('en-CA')} kW</dd></div></dl>
+    </article>`).join('');
+  const step = () => sc.querySelector('.card').offsetWidth + 18;
+  $('rl').onclick = () => sc.scrollBy({ left: -step() * 2, behavior: reduce ? 'auto' : 'smooth' });
+  $('rr').onclick = () => sc.scrollBy({ left: step() * 2, behavior: reduce ? 'auto' : 'smooth' });
+})();
+</script>
+</body>
+</html>
