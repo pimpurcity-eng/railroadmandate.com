@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download Railroad Mandate</title>
+<meta name="description" content="Download Railroad Mandate for Windows. Early build, still in development.">
+<meta name="theme-color" content="#10291f">
+<link rel="icon" href="../img/icon.png">
+<style>
+@font-face{font-family:Lora;src:url(../fonts/Lora-Variable.woff) format("woff");font-weight:400 700;font-display:swap}
+@font-face{font-family:Oswald;src:url(../fonts/Oswald.woff) format("woff");font-weight:200 700;font-display:swap}
+:root{--boiler:#10291f;--boiler-2:#173a2c;--brass:#d3a64c;--steam:#efe6d2;--steam-dim:#b9b39f;--paper:#e8dcc0;--ink:#1d1a14}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 30%,#173a2c,#0a1c15 75%);color:var(--steam);font:400 1.1rem/1.6 Lora,Georgia,serif;display:flex;flex-direction:column}
+a{color:var(--brass)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--brass);outline-offset:3px}
+header{padding:20px clamp(16px,4vw,56px)}
+header a{display:inline-flex;align-items:center;gap:10px;color:var(--steam);text-decoration:none;font-weight:600}
+header img{width:40px;height:40px}
+main{flex:1;display:grid;place-items:center;padding:24px 16px 64px}
+.card{width:min(560px,100%);text-align:center}
+.card .crest{width:120px;height:120px;margin:0 auto 18px;filter:drop-shadow(0 8px 16px rgba(0,0,0,.5))}
+h1{font:700 clamp(2.2rem,6vw,3.2rem)/1.05 Lora,serif;margin:0 0 10px}
+.ver{font-family:Oswald,sans-serif;color:var(--brass);font-size:1.1rem;letter-spacing:.03em;margin:0 0 26px}
+.btn{display:inline-flex;align-items:center;gap:12px;padding:16px 30px;border:0;border-radius:999px;background:var(--brass);color:var(--ink);font:600 1.12rem Lora,serif;cursor:pointer;box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),0 8px 22px rgba(0,0,0,.35)}
+.btn:hover{background:#e2b75c}
+.btn:disabled{opacity:.6;cursor:default}
+.btn svg{width:22px;height:22px}
+.bar{width:min(380px,90%);height:12px;margin:22px auto 8px;border-radius:6px;background:rgba(239,230,210,.15);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(211,166,76,.4);display:none}
+.bar i{display:block;height:100%;width:0;background:var(--brass);transition:width .2s}
+#status{min-height:1.6em;color:var(--steam-dim);font-size:.98rem}
+#error{color:#f2c2bd}
+ol{text-align:left;margin:34px auto 0;padding:22px 26px 22px 46px;background:var(--boiler-2);border:1px solid rgba(211,166,76,.3);border-radius:10px;max-width:30rem}
+ol li{margin:0 0 8px}
+ol li:last-child{margin:0}
+.small{font-size:.95rem;color:var(--steam-dim);margin-top:26px}
+</style>
+</head>
+<body>
+<header><a href="../"><img src="../img/crest_player.webp" alt="">Railroad Mandate</a></header>
+<main>
+  <div class="card">
+    <img class="crest" src="../img/crest_player.webp" alt="">
+    <h1>Railroad Mandate for Windows</h1>
+    <p class="ver" id="ver">Early build</p>
+    <button class="btn" id="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download for Windows</button>
+    <div class="bar" id="bar" aria-hidden="true"><i id="fill"></i></div>
+    <div id="status" role="status"></div>
+    <div id="error" role="alert"></div>
+    <ol>
+      <li>Open the downloaded <b>RailroadMandate-Windows.zip</b> and click <b>Extract all</b>.</li>
+      <li>Open the <b>Railroad Mandate</b> folder and double-click <b>RailroadMandate.exe</b>.</li>
+      <li>If Windows says it protected your PC, click <b>More info</b>, then <b>Run anyway</b>. The game is new, so Windows doesn't know it yet.</li>
+    </ol>
+    <p class="small">Windows 10 or 11, 64-bit. Your games are saved on your computer. No computer handy? <a href="../play/">Play in your browser</a>.</p>
+  </div>
+</main>
+<script>
+(() => {
+  const PARTS = ['win-0.bin', 'win-1.bin', 'win-2.bin', 'win-3.bin', 'win-4.bin', 'win-5.bin', 'win-6.bin', 'win-7.bin'];
+  const ZIP_SIZE = 200236419;
+  const VERSION = '0.19.1-play';
+  const $ = id => document.getElementById(id);
+  const mb = n => Math.round(n / 1048576);
+  $('ver').textContent = `Early build ${VERSION} · ${mb(ZIP_SIZE)} MB`;
+  $('go').addEventListener('click', async () => {
+    $('go').disabled = true; $('error').textContent = '';
+    $('bar').style.display = 'block';
+    const chunks = []; let got = 0;
+    try {
+      for (const url of PARTS) {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Download failed (${res.status}). Try again in a minute.`);
+        const reader = res.body.getReader();
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value); got += value.length;
+          $('fill').style.width = (got / ZIP_SIZE * 100) + '%';
+          $('status').textContent = `Downloading… ${mb(got)} of ${mb(ZIP_SIZE)} MB`;
+        }
+      }
+      if (got !== ZIP_SIZE) throw new Error('The download arrived incomplete. Try again.');
+      const url = URL.createObjectURL(new Blob(chunks, { type: 'application/zip' }));
+      const a = Object.assign(document.createElement('a'), { href: url, download: 'RailroadMandate-Windows.zip' });
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      $('status').textContent = 'Downloaded. Check your Downloads folder.';
+    } catch (e) {
+      $('status').textContent = '';
+      $('error').textContent = e.message || String(e);
+    }
+    $('go').disabled = false;
+  });
+})();
+</script>
+</body>
+</html>
