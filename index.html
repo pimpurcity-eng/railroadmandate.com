@@ -67,6 +67,15 @@ section{padding-block:clamp(72px,11vw,150px)}
 .hero::before{content:"";position:absolute;inset:0;z-index:-1;background:
   radial-gradient(ellipse 70% 60% at 72% 50%,rgba(16,41,31,.25),rgba(16,41,31,.86) 70%),
   linear-gradient(180deg,rgba(16,41,31,.55),rgba(16,41,31,.2) 40%,var(--boiler) 98%)}
+.together .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,6vw,90px);align-items:center}
+.together .phones{display:flex;gap:18px;justify-content:center}
+.together .phones .phone{width:min(220px,40vw);border-radius:32px;padding:9px}
+.together .phones .phone .screen{border-radius:24px}
+.together .phones .phone .screen img{opacity:1}
+.together ul{list-style:none;padding:0;margin:24px 0 0;display:grid;gap:14px}
+.together li{padding-left:30px;position:relative;font-size:1.05rem}
+.together li:before{content:"";position:absolute;left:0;top:.45em;width:14px;height:14px;border-radius:50%;background:#d3a64c;box-shadow:0 0 0 4px rgba(211,166,76,.18)}
+@media (max-width:900px){.together .wrap{grid-template-columns:1fr}}
 .hero .wrap{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(32px,6vw,90px);align-items:center}
 .hero h1{font-size:clamp(3.4rem,9.6vw,8.6rem);font-weight:700;line-height:.92;letter-spacing:-.025em;margin:22px 0 26px;color:#f6eedb;text-shadow:0 2px 0 rgba(0,0,0,.25)}
 .hero h1 span{display:block;font-family:Oswald,sans-serif;font-weight:400;letter-spacing:.04em;color:var(--brass);font-size:.62em;letter-spacing:-.01em;margin-top:.12em}
@@ -261,6 +270,7 @@ footer{padding:36px var(--gutter);display:flex;flex-wrap:wrap;justify-content:sp
     <a href="#play">How it plays</a>
     <a href="#eras">The eras</a>
     <a href="#roster">Engines</a>
+    <a href="#together">Leaderboards</a>
     <a href="download/">Download</a>
     <a href="play/">Play</a>
   </nav>
@@ -279,7 +289,7 @@ footer{padding:36px var(--gutter);display:flex;flex-wrap:wrap;justify-content:sp
         <a class="ticket" href="play/"><span><b>Play in your browser</b><small>Nothing to install</small></span><i>Free</i></a>
         <a class="ticket alt" href="download/"><span><b>Download for Windows</b><small>The full game for your computer</small></span><i>Free</i></a>
       </div>
-      <p class="status"><span class="lamp" aria-hidden="true"></span>Free early build. Android is in testing on Google Play.</p>
+      <p class="status"><span class="lamp" aria-hidden="true"></span>Free early build. One account with Warfront Mandate. Android is in testing on Google Play.</p>
     </div>
     <div>
       <div class="phone" id="heroPhone">
@@ -441,6 +451,26 @@ footer{padding:36px var(--gutter);display:flex;flex-wrap:wrap;justify-content:sp
         <figure><img src="img/unit_armoured_train.webp" alt="" loading="lazy" width="72" height="72"><figcaption>Armoured train</figcaption></figure>
         <figure><img src="img/unit_tank.webp" alt="" loading="lazy" width="72" height="72"><figcaption>Tanks</figcaption></figure>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOGETHER: one account with Warfront Mandate, leaderboards, alliances (owner 25 Nov 2026) -->
+<section class="together" id="together">
+  <div class="wrap">
+    <div>
+      <h2>One account. One alliance. Two games.</h2>
+      <p class="lede" style="margin-top:18px">Railroad Mandate and Warfront Mandate share one login. Sign in once with your email and you keep the same name and the same alliance in both games.</p>
+      <ul>
+        <li><b>World leaderboards:</b> best single games, every player's totals, and alliances, for money made, company value, freight and passengers.</li>
+        <li><b>Alliances:</b> join or make one in Warfront Mandate. Every member's railway results add up on the alliance board.</li>
+        <li><b>Train garage:</b> pick your engine, pick its route, then choose what each wagon carries.</li>
+        <li><b>Simple supply chains:</b> buy the mine, run a train to town, build the factory that turns ore into steel.</li>
+      </ul>
+    </div>
+    <div class="phones">
+      <div class="phone"><div class="screen"><img src="img/ph_menu.webp" alt="The start screen: continue your railway, three maps, leaderboard and alliance" width="720" height="1280" loading="lazy"></div></div>
+      <div class="phone"><div class="screen"><img src="img/ph_garage.webp" alt="The train garage: pick an engine, then where it runs" width="720" height="1280" loading="lazy"></div></div>
     </div>
   </div>
 </section>
